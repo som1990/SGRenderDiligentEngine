@@ -1,0 +1,31 @@
+#include "structures.fxh"
+
+struct PSOutput
+{
+    float4 Color : SV_Target;
+};
+
+void main(in PSInput PSIn,
+          out PSOutput PSOut)
+{
+    float3 lightDir = float3(0.0f, 0.0f, -1.0f);
+    float3 normal = normalize(PSIn.Normal);
+    float3 view = normalize(PSIn.EyePos - PSIn.Pos.xyz);
+    float3 colorSurface = 0.6.xxx;
+    float3 colorCool = float3(0.0f, 0.0f, 0.55f) + 0.25 * colorSurface;
+    float3 colorWarm = float3(0.3f, 0.3f, 0.f) + 0.25 * colorSurface;
+    
+    float3 colorHighlight = 1.0.xxx;
+    
+    float ndotl = dot(normal, lightDir);
+    float kDiff = (ndotl + 1.0f) * 0.5f;
+    float3 reflectVec = 2.0 * ndotl * normal - 1.0;
+    float kSpec = saturate(100.0f * dot(reflectVec, view) - 97.0);
+    
+    float3 color = lerp(lerp(colorWarm, colorCool, kDiff), colorHighlight, kSpec);
+    
+    // gooch highlighted model
+    //PSOut.Color.xyz = pow(color, 0.44.xxx);
+    PSOut.Color.xyz = color;
+    PSOut.Color.w = 1.0f;
+}
